@@ -5,15 +5,18 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
-	"github.com/go-ping/ping"
+	"github.com/cenkalti/backoff/v4"
+	"github.com/prometheus-community/pro-bing"
 )
 
 const (
 	apiBaseURL     = "http://localhost:4000/api"
-	getContainers  = "/containers"
+	getContainers  = "/pings" 
 	postPingResult = "/pings"
+	logFile        = "pinger.log"
 )
 
 type Container struct {
@@ -28,8 +31,56 @@ type PingResult struct {
 	LastChecked time.Time `json:"last_checked"`
 }
 
+func initLogger() {
+	file, err := os.OpenFile(logFile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	if err != nil {
+		log.Fatal("Ошибка открытия файла логов:", err)
+	}
+	log.SetOutput(file)
+	log.Println("Pinger сервис запущен...")
+}
+
+func requestWithRetry(method, url string, body []byte) (*http.Response, error) {
+	var resp *http.Response
+	var err error
+
+	operation := func() error {
+		var req *http.Request
+		if body != nil {
+			req, err = http.NewRequest(method, url, bytes.NewBuffer(body))
+			req.Header.Set("Content-Type", "application/json")
+		} else {
+			req, err = http.NewRequest(method, url, nil)
+		}
+
+		if err != nil {
+			return err
+		}
+
+		client := &http.Client{Timeout: 5 * time.Second}
+		resp, err = client.Do(req)
+		if err != nil {
+			log.Printf("Ошибка HTTP-запроса (%s): %v. Повтор...\n", url, err)
+			return err
+		}
+
+		if resp.StatusCode >= 500 {
+			log.Printf("Серверная ошибка (%s): %d. Повтор...\n", url, resp.StatusCode)
+			return err
+		}
+
+		return nil
+	}
+
+	expBackoff := backoff.NewExponentialBackOff()
+	expBackoff.MaxElapsedTime = 15 * time.Second
+
+	err = backoff.Retry(operation, expBackoff)
+	return resp, err
+}
+
 func fetchContainers() ([]Container, error) {
-	resp, err := http.Get(apiBaseURL + getContainers)
+	resp, err := requestWithRetry("GET", apiBaseURL+getContainers, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -50,26 +101,31 @@ func sendPingResult(result PingResult) error {
 		return err
 	}
 
-	resp, err := http.Post(apiBaseURL+postPingResult, "application/json", bytes.NewBuffer(data))
+	resp, err := requestWithRetry("POST", apiBaseURL+postPingResult, data)
 	if err != nil {
 		return err
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusCreated {
+		body := new(bytes.Buffer)
+		body.ReadFrom(resp.Body)
+		log.Printf("Ошибка отправки данных (HTTP %d): %s\n", resp.StatusCode, body.String())
 		return err
 	}
 
+	log.Printf("Успешно отправлен результат пинга: %+v\n", result)
 	return nil
 }
 
 func pingContainer(ip string) (int, error) {
-	pinger, err := ping.NewPinger(ip)
+	pinger, err := probing.NewPinger(ip)
 	if err != nil {
 		return 0, err
 	}
 	pinger.Count = 3
 	pinger.Timeout = time.Second * 5
+	pinger.SetPrivileged(true)
 
 	err = pinger.Run()
 	if err != nil {
@@ -103,13 +159,13 @@ func pingAllContainers() {
 		err = sendPingResult(result)
 		if err != nil {
 			log.Printf("Ошибка отправки данных о пинге %s: %v\n", container.IP, err)
-		} else {
-			log.Printf("Успешно отправлен результат пинга %s: %d ms\n", container.IP, pingTime)
 		}
 	}
 }
 
 func main() {
+	initLogger()
+
 	for {
 		pingAllContainers()
 		time.Sleep(10 * time.Second)
