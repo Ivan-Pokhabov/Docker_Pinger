@@ -1,12 +1,6 @@
-export async function PostRequest(ip: string) {
+export async function GetRequest() {
     try {
-      const res = await fetch('http://localhost:4040/ping', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ ip }),
-      });
+      const res = await fetch('http://localhost:4040/ping');
   
       if (!res.ok) throw new Error(`Ошибка: ${res.statusText}`);
   

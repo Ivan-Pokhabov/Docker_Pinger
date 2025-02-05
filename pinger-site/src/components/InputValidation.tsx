@@ -31,7 +31,7 @@ export function InputValidation() {
       const data = await PostRequest(value);
       setResponse(`Ответ: ${JSON.stringify(data)}`);
     } catch (error) {
-      setResponse(`Ошибка запроса: ${(error as Error).message}`);
+      setResponse(`${(error as Error).message}`);
     }
   };
 
