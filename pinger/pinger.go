@@ -26,7 +26,7 @@ type Container struct {
 
 type PingResult struct {
 	ID          int       `json:"id"`
-	IPAddress   string    `json:"ip"`
+	IP   string    `json:"ip"`
 	PingTime    int       `json:"ping_time"`
 	LastChecked time.Time `json:"last_checked"`
 }
@@ -150,8 +150,10 @@ func pingAllContainers() {
 			continue
 		}
 
+		log.Printf("Пинг %s: %d ms\n", container.IP, pingTime)
+
 		result := PingResult{
-			IPAddress:   container.IP,
+			IP:   container.IP,
 			PingTime:    pingTime,
 			LastChecked: time.Now(),
 		}
