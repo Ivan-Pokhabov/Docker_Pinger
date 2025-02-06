@@ -9,6 +9,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/jmoiron/sqlx"
+	"github.com/rs/cors"
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
@@ -21,7 +22,7 @@ var db *sqlx.DB
 
 type PingResult struct {
 	ID          int       `db:"id" json:"id"`
-	IPAddress   string    `db:"ip"`
+	IP   		string    `db:"ip"`
 	PingTime    int       `db:"ping_time"`
 	LastChecked time.Time `db:"last_checked"`
 }
@@ -80,14 +81,23 @@ func addPingHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err := db.Exec("INSERT INTO pings (ip, ping_time, last_checked) VALUES ($1, $2, NOW())", p.IPAddress, p.PingTime)
+	query := `
+		INSERT INTO pings (ip, ping_time, last_checked)
+		VALUES ($1, $2, NOW())
+		ON CONFLICT (ip) 
+		DO UPDATE
+		SET ping_time = EXCLUDED.ping_time, last_checked = NOW()
+
+	`
+
+	_, err := db.Exec(query, p.IP, p.PingTime)
 	if err != nil {
 		log.Println("Ошибка записи в БД:", err)
 		http.Error(w, "Ошибка записи в БД", http.StatusInternalServerError)
 		return
 	}
 
-	log.Printf("Добавлена запись: IP=%s, PingTime=%d\n", p.IPAddress, p.PingTime)
+	log.Printf("Добавлена запись: IP=%s, PingTime=%d\n", p.IP, p.PingTime)
 	w.WriteHeader(http.StatusCreated)
 }
 
@@ -100,6 +110,13 @@ func main() {
 	r.HandleFunc("/api/pings", getPingsHandler).Methods("GET")
 	r.HandleFunc("/api/pings", addPingHandler).Methods("POST")
 
+	corsHandler := cors.New(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:5173"},
+		AllowedMethods:   []string{"GET", "POST", "OPTIONS"},
+		AllowedHeaders:   []string{"Content-Type"},
+		AllowCredentials: true,
+	})
+
 	log.Println("Сервер запущен на порту 4000")
-	log.Fatal(http.ListenAndServe(":4000", r))
+	http.ListenAndServe(":4000", corsHandler.Handler(r))
 }
