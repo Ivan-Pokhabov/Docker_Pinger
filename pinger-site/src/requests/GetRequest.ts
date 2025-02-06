@@ -1,6 +1,6 @@
 export async function GetRequest() {
     try {
-      const res = await fetch('http://localhost:4040/ping');
+      const res = await fetch('http://localhost:4000/api/pings');
   
       if (!res.ok) throw new Error(`Ошибка: ${res.statusText}`);
   
