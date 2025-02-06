@@ -4,6 +4,7 @@ import { TextInput, Paper, Title } from '@mantine/core';
 import { PostButton } from './PostButton';
 import { PostRequest } from '../requests/PostReqest';
 import classes from './InputValidation.module.css';
+import { PostNotification } from './PostNotification';
 
 function validateIP(ip: string): boolean {
   const ipRegex = /^(25[0-5]|2[0-4][0-9]|1?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|1?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|1?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|1?[0-9][0-9]?)$/;
@@ -13,7 +14,7 @@ function validateIP(ip: string): boolean {
 export function InputValidation() {
   const [value, setValue] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const [response, setResponse] = useState<string | null>(null);
+  const [notification, setNotification] = useState<{ message: string | null; type: 'success' | 'error' } | null>(null);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const inputValue = event.target.value;
@@ -23,21 +24,22 @@ export function InputValidation() {
 
   const handleSendRequest = async () => {
     if (!value.trim() || error) {
-      alert('Введите корректный IP перед отправкой');
+      setNotification({ message: 'Введите корректный IP перед отправкой', type: 'error' });
       return;
     }
 
     try {
-      const data = await PostRequest(value);
-      setResponse(`Ответ: ${JSON.stringify(data)}`);
-    } catch (error) {
-      setResponse(`${(error as Error).message}`);
+      await PostRequest(value);
+      setNotification({ message: 'IP-адрес успешно добавлен', type: 'success' });
+    } catch {
+      setNotification({ message: 'Ошибка при добавлении IP-адреса', type: 'error' });
     }
   };
 
   return (
     <Paper shadow="sm" p="md" radius="md">
       <Title order={2} mb="md">Add New Container</Title>
+
       <TextInput
         label="IP Address"
         value={value}
@@ -49,13 +51,9 @@ export function InputValidation() {
         mb="md"
       />
 
-      <PostButton onClick={handleSendRequest}/>
+      <PostButton onClick={handleSendRequest} />
 
-      {response && (
-        <Paper withBorder p="sm" mt="md" radius="sm" bg="gray.0">
-          <pre style={{ margin: 0 }}>{response}</pre>
-        </Paper>
-      )}
+      {notification && <PostNotification message={notification.message} type={notification.type} onClose={() => setNotification(null)} />}
     </Paper>
   );
 }
