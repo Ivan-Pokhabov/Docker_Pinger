@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { IconAlertTriangle } from '@tabler/icons-react';
-import { TextInput } from '@mantine/core';
+import { TextInput, Paper, Title } from '@mantine/core';
 import { PostButton } from './PostButton';
 import { PostRequest } from '../requests/PostReqest';
 import classes from './InputValidation.module.css';
@@ -36,24 +36,26 @@ export function InputValidation() {
   };
 
   return (
-    <div>
+    <Paper shadow="sm" p="md" radius="md">
+      <Title order={2} mb="md">Add New Container</Title>
       <TextInput
-        label="Введите IP адрес"
+        label="IP Address"
         value={value}
         onChange={handleChange}
         error={error}
         classNames={{ input: error ? classes.invalid : undefined }}
         rightSection={error ? <IconAlertTriangle stroke={1.5} size={18} className={classes.icon} /> : null}
-        placeholder="Пример: 192.168.1.1"
+        placeholder="Example: 192.168.1.1"
+        mb="md"
       />
 
       <PostButton onClick={handleSendRequest}/>
 
       {response && (
-        <pre className={classes.response}>
-          {response}
-        </pre>
+        <Paper withBorder p="sm" mt="md" radius="sm" bg="gray.0">
+          <pre style={{ margin: 0 }}>{response}</pre>
+        </Paper>
       )}
-    </div>
+    </Paper>
   );
 }

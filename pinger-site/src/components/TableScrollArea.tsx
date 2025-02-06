@@ -3,16 +3,18 @@ import { ScrollArea, Table } from '@mantine/core';
 import { GetRequest } from '../requests/GetRequest';
 import cx from 'clsx';
 import classes from './TableScrollArea.module.css';
+import { format } from 'date-fns';
 
 interface DataItem {
-  ip: string;
-  ping_time: number;
-  last_checked: string;
+  id: number;
+  IP: string;
+  PingTime: number;
+  LastChecked: string;
 }
 
 export function TableScrollArea() {
   const [scrolled, setScrolled] = useState(false);
-  const [data, setData] = useState<DataItem[] | null>(null);
+  const [data, setData] = useState<DataItem[] | null>([]);
   const [error, setError] = useState<string | null>(null);
 
   const loadData = async () => {
@@ -38,8 +40,8 @@ export function TableScrollArea() {
         <Table.Thead className={cx(classes.header, { [classes.scrolled]: scrolled })}>
           <Table.Tr>
             <Table.Th>Docker IP</Table.Th>
-            <Table.Th>Last Time Check</Table.Th>
-            <Table.Th>Status</Table.Th>
+            <Table.Th>Ping time</Table.Th>
+            <Table.Th>Last successful check</Table.Th>
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>
@@ -52,9 +54,10 @@ export function TableScrollArea() {
           ) : data && data.length > 0 ? (
             data.map((row, index) => (
               <Table.Tr key={index}>
-                <Table.Td>{row.ip}</Table.Td>
-                <Table.Td>{row.ping_time}</Table.Td>
-                <Table.Td>{row.last_checked}</Table.Td>
+                <Table.Td>{row.IP}</Table.Td>
+                <Table.Td>{row.PingTime}</Table.Td>
+                <Table.Td>{format(new Date(row.LastChecked), 'dd MMMM yyyy, HH:mm:ss')}</Table.Td>
+
               </Table.Tr>
             ))
           ) : (
