@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	dbConnStr = "postgres://myuser:lolkek666@localhost:5432/pingdb?sslmode=disable"
+	dbConnStr = "postgres://myuser:lolkek666@pingdb:5432/pingdb?sslmode=disable"
 	logFile   = "server.log"
 )
 
@@ -45,7 +45,7 @@ func initDB() {
 
 	query := `CREATE TABLE IF NOT EXISTS pings (
 		id SERIAL PRIMARY KEY,
-		ip VARCHAR(50) NOT NULL,
+		ip VARCHAR(50) NOT NULL UNIQUE,
 		ping_time INT NOT NULL,
 		last_checked TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 	)`
@@ -111,7 +111,7 @@ func main() {
 	r.HandleFunc("/api/pings", addPingHandler).Methods("POST")
 
 	corsHandler := cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:5173"},
+		AllowedOrigins:   []string{"*"},
 		AllowedMethods:   []string{"GET", "POST", "OPTIONS"},
 		AllowedHeaders:   []string{"Content-Type"},
 		AllowCredentials: true,

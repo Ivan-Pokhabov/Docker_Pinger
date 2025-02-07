@@ -1,6 +1,6 @@
 export async function PostRequest(ip: string) {
     try {
-      const res = await fetch('http://localhost:4000/api/pings', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/pings`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

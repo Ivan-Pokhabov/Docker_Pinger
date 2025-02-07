@@ -1,0 +1,55 @@
+services:
+  server:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+    depends_on:
+      - pingdb
+    entrypoint: ["sh", "-c", "sleep 5 && ./server"]
+    environment:
+      - DB_HOST=pingdb
+      - DB_PORT=5432
+      - DB_USER=myuser
+      - DB_PASSWORD=lolkek666
+      - DB_NAME=pingdb
+    ports:
+      - "4000:4000"
+
+
+  pinger:
+    build:
+      context: .
+      dockerfile: pinger/Dockerfile
+    depends_on:
+      - server
+    environment:
+      - SERVER_URL=http://server:4000
+
+  site:
+    build:
+      context: .
+      dockerfile: pinger-site/Dockerfile
+    depends_on:
+      - server
+    ports:
+      - "3000:80"
+
+  pingdb:
+    image: postgres:latest
+    container_name: pingdb
+    restart: always
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: lolkek666
+      POSTGRES_DB: pingdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "myuser", "-d", "pingdb"]
+      interval: 5s
+      retries: 5
+
+volumes:
+  pg_data:

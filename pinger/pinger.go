@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	apiBaseURL     = "http://localhost:4000/api"
+	apiBaseURL     = "http://server:4000/api"
 	getContainers  = "/pings" 
 	postPingResult = "/pings"
 	logFile        = "pinger.log"
