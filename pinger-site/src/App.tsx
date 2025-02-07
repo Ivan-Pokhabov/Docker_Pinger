@@ -12,7 +12,7 @@ export default function App() {
       <Header />
       <Container size="md" py="xl">
         <TableScrollArea />
-        <InputValidation mt="xl" />
+        <InputValidation />
       </Container>
     </MantineProvider>
   );
