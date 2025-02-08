@@ -44,8 +44,8 @@ docker compose version
 ```
 ### 2. Клонируйте репозиторий и перейдите в папку проекта
 ```sh
-git clone https://github.com/
-cd ...
+git clone https://github.com/https://github.com/Ivan-Pokhabov/Docker_Pinger
+cd Docker_Pinger
 ```
 ### 3. Настройте переменные окружения
 Создайте файл .env в папке pinger-site/ и добавьте API-URL:
