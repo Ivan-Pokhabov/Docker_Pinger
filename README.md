@@ -1,3 +1,8 @@
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+![ESLint](https://img.shields.io/badge/ESLint-enabled-brightgreen?logo=eslint&logoColor=white)
+![Prettier](https://img.shields.io/badge/Prettier-code--formatted-blue?logo=prettier&logoColor=white)
+![GoImports](https://img.shields.io/badge/GoImports-formatted-blue?logo=go&logoColor=white)
+
 # 🐳 Docker Pinger
 📡 **Мониторинг состояния Docker-контейнеров с API, пингами и UI**  
 
