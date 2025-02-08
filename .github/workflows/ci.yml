@@ -22,7 +22,7 @@ jobs:
           npm install
 
       - name: Запуск ESLint
-        run: cd pinger-site && npx eslint .js,.jsx,.ts,.tsx src/
+        run: cd pinger-site && npx eslint "src/**/*.{js,jsx,ts,tsx}"
 
       - name: Запуск Prettier
         run: cd pinger-site && npx prettier --check "src/**/*.{json,css}"
