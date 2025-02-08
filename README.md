@@ -1,4 +1,4 @@
-<a href="https://github.com/Ivan-Pokhabov/Docker_Pinger/actions"><img alt="Test" src="https://github.com/Ivan-Pokhabov/Docker_Pinger/actions/workflows/ci.yaml/badge.svg"></a>
+<a href="https://github.com/Ivan-Pokhabov/Docker_Pinger/actions"><img alt="Test" src="https://github.com/Ivan-Pokhabov/Docker_Pinger/actions/workflows/ci.yml/badge.svg"></a>
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 ![ESLint](https://img.shields.io/badge/ESLint-enabled-brightgreen?logo=eslint&logoColor=white)
 ![Prettier](https://img.shields.io/badge/Prettier-code--formatted-blue?logo=prettier&logoColor=white)
