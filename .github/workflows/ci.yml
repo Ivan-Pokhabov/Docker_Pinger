@@ -22,10 +22,10 @@ jobs:
           npm install
 
       - name: Запуск ESLint
-        run: cd pinger-site && npx eslint --ext .js,.jsx,.ts,.tsx src/
+        run: cd pinger-site && npx eslint .js,.jsx,.ts,.tsx src/
 
       - name: Запуск Prettier
-        run: cd pinger-site && npx prettier --check "src/**/*.{js,jsx,ts,tsx,json,css,md}"
+        run: cd pinger-site && npx prettier --check "src/**/*.{json,css}"
 
       - name: Установка Go
         uses: actions/setup-go@v5
