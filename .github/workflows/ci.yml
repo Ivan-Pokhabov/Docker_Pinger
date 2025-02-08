@@ -53,7 +53,9 @@ jobs:
       - name: Установка Docker и Docker Compose
         run: |
           sudo apt update
-          sudo apt install -y docker.io docker-compose
+          sudo apt remove -y containerd
+          curl -fsSL https://get.docker.com | sudo sh
+          sudo apt install -y docker-compose-plugin
 
       - name: Сборка Docker-контейнеров
         run: sudo docker compose build
